@@ -2,7 +2,7 @@ package models.dao;
 
 import java.util.List;
 
-import model.entities.Role;
+import models.entities.Role;
 
 public interface RoleDao {
 	
