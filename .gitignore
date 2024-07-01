@@ -25,3 +25,7 @@ replay_pid*
 
 #IntelliJ ignore
 .idea/
+
+# file with properties
+db.properties
+

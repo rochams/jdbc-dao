@@ -10,6 +10,7 @@ public interface UserDao {
 	void update(User user);
 	void deleteById(Integer id);
 	User findByID(Integer id);
+	List<User> findByDepartment(Integer roleId);
 	List<User> findAll();
 
 }
