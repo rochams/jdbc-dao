@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,33 @@ public class UserDaoJDBC implements UserDao {
 	@Override
 	public void create(User user) {
 		
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			
+			ps = conn.prepareStatement("""
+				INSERT INTO user (name, roleId)
+				VALUES (?, ?)
+			""", Statement.RETURN_GENERATED_KEYS); // Statement.RETURN_GENERATED_KEYS returns the id of created object
+			ps.setString(1, user.getName());
+			ps.setInt(2, user.getRole().getId());
+			rs = ps.executeQuery();
+			
+			int rowsGen = ps.executeUpdate();
+			if (rowsGen > 0) {
+				rs = ps.getGeneratedKeys();
+				if (rs.next()) {
+					int id = rs.getInt(1);
+					user.setId(id);
+				}
+			}
+			
+		} catch(SQLException e) {
+			throw new DBException(e.getMessage());
+		} finally {
+			DB.closePreparedStatement(ps);
+			DB.closeResultSet(rs);
+		}
 	}
 
 	@Override
@@ -79,7 +107,38 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public List<User> findAll() {
-		return null;
+		
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		List<User> usersList = new ArrayList<>();
+		
+		try {
+			ps = conn.prepareStatement("""
+			select user.*, role.Name as roleName
+			from user inner join role 
+			on user.roleId=role.Id;		
+			""");
+			rs = ps.executeQuery();
+			
+			while (rs.next()) {
+				Role role = new Role(
+						rs.getInt("roleID"), 
+						rs.getString("roleName")
+				);
+				User user = new User(
+						rs.getInt("id"), 
+						rs.getString("name"), 
+						role
+				);
+				usersList.add(user);
+			}
+			return usersList;
+			
+		} catch(SQLException e) {
+			throw new DBException(e.getMessage());
+		}
+		
 	}
 
 	@Override // like findById - difference on the loop

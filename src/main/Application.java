@@ -20,6 +20,11 @@ public class Application {
 		for (User u: usersByDepartment) {
 			System.out.println(u);
 		}
+		System.out.println("********** find all *********");
+		List<User> usersList = userDao.findAll();
+		for (User u: usersList) {
+			System.out.println(u);
+		}
 
 	}
 
