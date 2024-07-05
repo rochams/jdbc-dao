@@ -58,10 +58,44 @@ public class UserDaoJDBC implements UserDao {
 	@Override
 	public void update(User user) {
 		
+		PreparedStatement ps = null;
+
+		try {
+			
+			ps = conn.prepareStatement("""
+				UPDATE user (name, roleId)
+				SET name = ?, roleId = ?
+				WHERE id = ?
+			""", Statement.RETURN_GENERATED_KEYS); // Statement.RETURN_GENERATED_KEYS returns the id of created object
+			ps.setString(1, user.getName());
+			ps.setInt(2, user.getRole().getId());
+			ps.setInt(3, user.getId());
+			ps.executeQuery();
+			
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		}
+		
 	}
 
 	@Override
 	public void deleteById(Integer id) {
+		
+		PreparedStatement ps = null;
+		
+		try {
+			
+			ps = conn.prepareStatement("""
+				DELETE FROM user WHERE id = ?	
+			""");
+			
+			User user = this.findByID(id);
+			ps.setInt(1, user.getId());;
+			ps.executeQuery();
+			
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		}
 		
 	}
 
